@@ -21,3 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Samachar"
 include(":app")
+include(":domain")
+include(":data")
