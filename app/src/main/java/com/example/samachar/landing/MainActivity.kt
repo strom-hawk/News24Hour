@@ -1,4 +1,4 @@
-package com.example.samachar
+package com.example.samachar.landing
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
