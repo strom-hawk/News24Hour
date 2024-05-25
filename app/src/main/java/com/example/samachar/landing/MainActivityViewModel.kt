@@ -19,7 +19,9 @@ class MainActivityViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO + CoroutineExceptionHandler { coroutineContext, throwable ->
             println("____________${throwable}")
         }) {
-            useCase.getNews()
+            val response = useCase.getNews()
+            println("_____ status: ${response.status}")
+            println("_____ total news: ${response.totalResults}")
         }
     }
 }
