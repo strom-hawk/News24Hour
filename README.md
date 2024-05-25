@@ -1,10 +1,10 @@
 # News24Hour
 
-<u>Description:</u>
+<b><i>Description:</i></b>
 
 This TV application <u>provides</u> users with a convenient and up-to-date way to stay informed about current events and happenings around the world. Users receive real-time notifications for breaking news stories so you can stay ahead of the curve. The intuitive navigation and a sleek design make it easy to find the information you're looking for.
 
-<u>Installation:</u>
+<b><i>Installation:</i></b>
 
 To run the app you just need an android studio. I'll add the version which I used to create in the screenshot. The latest version of android studio will be a good option.
 
@@ -13,7 +13,7 @@ Android Studio Information:
 ![Android Studio Info](screenshots/android_studio.png)
 
 
-<u>Project Structure:</u>
+<b><i>Project Structure:</i></b>
 1. Architecure: MVVM with repository pattern.
 2. Ktor for making async api calls.
 3. Hilt for dependency injection.
@@ -21,11 +21,12 @@ Android Studio Information:
 5. Coil for image downloading
 
 
-<u>Features:</u>
+<b><i>Features:</i></b>
 
 This app has various categories of news like health, sports, business but they are only limited to India as of now. News of other countries are under dev. Please stay tuned.
 
-<u>Screenshots</u>
+<b><i>Screenshots:</i></b>
+
 Screen shot 1:
 ![ScreenShot1](screenshots/2.png)
 
