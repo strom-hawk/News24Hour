@@ -8,6 +8,11 @@ This TV application <u>provides</u> users with a convenient and up-to-date way t
 
 To run the app you just need an android studio. I'll add the version which I used to create in the screenshot. The latest version of android studio will be a good option.
 
+Android Studio Information:
+
+![Android Studio Info](screenshots/android_studio.png)
+
+
 <u>Project Structure:</u>
 1. Architecure: MVVM with repository pattern.
 2. Ktor for making async api calls.
@@ -21,4 +26,18 @@ To run the app you just need an android studio. I'll add the version which I use
 This app has various categories of news like health, sports, business but they are only limited to India as of now. News of other countries are under dev. Please stay tuned.
 
 <u>Screenshots</u>
+Screen shot 1:
+![ScreenShot1](screenshots/2.png)
+
+Screen shot 2:
+![ScreenShot2](screenshots/3.png)
+
+Screen shot 3:
+![ScreenShot3](screenshots/4.png)
+
+Screen shot 4:
+![ScreenShot4](screenshots/5.png)
+
+Screen shot 5:
+![Error Screen](screenshots/1.png)
 
