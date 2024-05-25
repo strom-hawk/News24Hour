@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -171,22 +172,18 @@ fun CategoryList(
                             .clickable(
                                 interactionSource = interactionSource,
                                 indication = null
-                            ) {
-                                selectedIndex.value = index
-                                selectedTab.value = category
-                                onNewsCategoryClick(category)
-                            }
+                            ) {}
                             .onKeyEvent { keyEvent ->
                                 if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
                                     when (keyEvent.nativeKeyEvent.keyCode) {
                                         KeyEvent.KEYCODE_DPAD_CENTER -> {
-                                            println("-----------long press")
+                                            if(keyEvent.nativeKeyEvent.isLongPress) {
+                                                onNewsCategoryClick(selectedTab.value)
+                                            }
                                             true
                                         }
 
-                                        else -> {
-                                            false
-                                        }
+                                        else -> { false }
                                     }
                                 }
 
