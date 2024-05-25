@@ -13,6 +13,7 @@ import io.ktor.client.engine.android.Android
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
 import io.ktor.client.features.logging.LogLevel
+import io.ktor.client.features.logging.Logger
 import io.ktor.client.features.logging.Logging
 import io.ktor.http.ContentType
 import javax.inject.Singleton
@@ -28,6 +29,12 @@ object NewsModule {
     fun provideHttpClient(): HttpClient {
         return HttpClient(Android) {
             install(Logging) {
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        print(message)
+                        println()
+                    }
+                }
                 level = LogLevel.ALL
             }
             install(JsonFeature) {

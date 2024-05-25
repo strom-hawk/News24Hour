@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.samachar.ui.theme.SamacharTheme
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.activity.viewModels
+import androidx.compose.runtime.collectAsState
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -22,13 +23,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             viewModel.getNews()
             SamacharTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("World")
-                }
+                val newsResponse = viewModel.newsResponse.collectAsState()
+                val uiState = viewModel.uiState.collectAsState()
+                NewsLandingViewHolder(uiState, newsResponse)
             }
         }
     }
