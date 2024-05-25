@@ -1,6 +1,7 @@
 package com.example.samachar.landing
 
 import android.view.KeyEvent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -18,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,13 +31,16 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.domain.data.Articles
 import com.example.domain.data.NewsResponse
 import com.example.domain.data.Response
 import com.example.domain.data.UiState
+import com.example.samachar.R
 import com.example.samachar.utils.ColorSystem
 import com.example.samachar.utils.customviews.ErrorState
 import com.example.samachar.utils.customviews.NewsCard
@@ -91,6 +97,10 @@ fun NewsView(
     val newsCardFocus = FocusRequester()
     val categoryFocus = FocusRequester()
 
+    LaunchedEffect(Unit) {
+        categoryFocus.requestFocus()
+    }
+
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -142,6 +152,12 @@ fun CategoryList(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        Image(
+            painterResource(R.drawable.samachar_logo),
+            contentDescription = "",
+            modifier = Modifier.fillMaxWidth()
+        )
 
         LazyColumn {
             categoryList.forEachIndexed { index, category ->
