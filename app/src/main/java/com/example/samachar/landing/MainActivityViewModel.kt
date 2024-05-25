@@ -29,6 +29,7 @@ class MainActivityViewModel @Inject constructor(
     fun getNews(
         category: String = "GENERAL"
     ) {
+        _uiState.value = UiState.Loading
         viewModelScope.launch(Dispatchers.IO + CoroutineExceptionHandler { coroutineContext, throwable ->
             uiState.value = UiState.Error
         }) {

@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import com.example.domain.data.NewsResponse
 import com.example.domain.data.UiState
 import com.example.samachar.utils.ColorSystem
-import com.example.samachar.utils.customviews.CustomLoader
 import com.example.samachar.utils.customviews.NewsCard
+import com.example.samachar.utils.customviews.ShimmerBrush
 
 @Composable
 fun NewsLandingViewHolder(
@@ -38,27 +38,34 @@ fun NewsLandingViewHolder(
     onNewsCategoryClick: (String) -> Unit
 ) {
     val news = newsResponse.value
+    val showShimmer = remember { mutableStateOf(true) }
+
     when (uiState.value) {
         UiState.Loading -> {
-            CustomLoader()
+            showShimmer.value = true
         }
 
         UiState.Error -> {
             println("_________error: ")
+            showShimmer.value = true
         }
 
         else -> {
-            NewsView(
-                news = news,
-                onNewsCategoryClick = onNewsCategoryClick
-            )
+            showShimmer.value = false
         }
     }
+
+    NewsView(
+        news = news,
+        showShimmer = showShimmer.value,
+        onNewsCategoryClick = onNewsCategoryClick
+    )
 }
 
 @Composable
 fun NewsView(
     news: NewsResponse,
+    showShimmer: Boolean,
     onNewsCategoryClick: (String) -> Unit
 ) {
     Row(
@@ -68,7 +75,7 @@ fun NewsView(
     ) {
         RedDivider()
         CategoryList(onNewsCategoryClick = onNewsCategoryClick)
-        NewsList(news = news)
+        NewsList(news = news, showShimmer = showShimmer)
     }
 }
 
@@ -125,21 +132,30 @@ fun CategoryList(onNewsCategoryClick: (String) -> Unit) {
 
 @Composable
 fun NewsList(
-    news: NewsResponse
+    news: NewsResponse,
+    showShimmer: Boolean,
 ) {
     val itemSize: Dp = ((LocalConfiguration.current.screenWidthDp.dp)) / 5
 
-    LazyVerticalGrid(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
-        columns = GridCells.Adaptive(minSize = itemSize),
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        news.articles?.forEach { article ->
-            item {
-                NewsCard(article)
+    if (showShimmer) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(ShimmerBrush(targetValue = 1300f, showShimmer = showShimmer))
+        ) {}
+    } else {
+        LazyVerticalGrid(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
+            columns = GridCells.Adaptive(minSize = itemSize),
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            news.articles?.forEach { article ->
+                item {
+                    NewsCard(article)
+                }
             }
         }
     }
