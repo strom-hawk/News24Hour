@@ -156,12 +156,12 @@ fun CategoryList(
 
         Image(
             painterResource(R.drawable.samachar_logo),
-            contentDescription = "",
+            contentDescription = "ic_samachar",
             modifier = Modifier.fillMaxWidth()
         )
 
         LazyColumn {
-            categoryList.forEachIndexed { index, category ->
+            categoryList.forEachIndexed { _, category ->
                 item {
                     Text(
                         modifier = Modifier
