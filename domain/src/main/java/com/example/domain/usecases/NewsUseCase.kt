@@ -6,7 +6,7 @@ import com.example.domain.repositories.NewsRepository
 class NewsUseCase(
     private val repo: NewsRepository
 ) {
-    suspend fun getNews(): NewsResponse {
-        return repo.getNews()
+    suspend fun getNews(category: String): NewsResponse {
+        return repo.getNews(category)
     }
 }

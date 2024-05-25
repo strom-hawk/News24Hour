@@ -25,7 +25,9 @@ class MainActivity : ComponentActivity() {
             SamacharTheme {
                 val newsResponse = viewModel.newsResponse.collectAsState()
                 val uiState = viewModel.uiState.collectAsState()
-                NewsLandingViewHolder(uiState, newsResponse)
+                NewsLandingViewHolder(uiState, newsResponse) { _category ->
+                    viewModel.getNews(_category)
+                }
             }
         }
     }

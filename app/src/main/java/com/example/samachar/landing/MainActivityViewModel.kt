@@ -26,11 +26,13 @@ class MainActivityViewModel @Inject constructor(
     private val _newsResponse = MutableStateFlow(value = NewsResponse())
     val newsResponse = _newsResponse.asStateFlow()
 
-    fun getNews() {
+    fun getNews(
+        category: String = "GENERAL"
+    ) {
         viewModelScope.launch(Dispatchers.IO + CoroutineExceptionHandler { coroutineContext, throwable ->
             uiState.value = UiState.Error
         }) {
-            _newsResponse.value = useCase.getNews()
+            _newsResponse.value = useCase.getNews(category)
             uiState.value = UiState.Success
         }
     }
