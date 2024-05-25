@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    kotlin("kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -28,6 +30,10 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            isShrinkResources = false
+            isMinifyEnabled = false
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -51,6 +57,9 @@ android {
 
 dependencies {
 
+    implementation(project(":data"))
+    implementation(project(":domain"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -66,4 +75,16 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation ("com.google.dagger:hilt-android:2.48")
+    kapt ("com.google.dagger:hilt-android-compiler:2.48")
+    implementation ("androidx.hilt:hilt-navigation-compose:1.1.0")
+
+    implementation ("io.ktor:ktor-client-android:1.5.0")
+    implementation ("io.ktor:ktor-client-serialization:1.5.0")
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+    implementation ("io.ktor:ktor-client-logging-jvm:1.5.0")
+}
+kapt {
+    correctErrorTypes = true
 }
