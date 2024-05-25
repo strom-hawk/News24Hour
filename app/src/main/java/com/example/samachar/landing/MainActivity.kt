@@ -3,9 +3,6 @@ package com.example.samachar.landing
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,8 +21,8 @@ class MainActivity : ComponentActivity() {
             viewModel.getNews()
             SamacharTheme {
                 val newsResponse = viewModel.newsResponse.collectAsState()
-                val uiState = viewModel.uiState.collectAsState()
-                NewsLandingViewHolder(uiState, newsResponse) { _category ->
+
+                NewsLandingViewHolder(newsResponse) { _category ->
                     viewModel.getNews(_category)
                 }
             }

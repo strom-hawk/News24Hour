@@ -1,5 +1,6 @@
 package com.example.samachar.landing
 
+import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -22,10 +23,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.domain.data.Articles
 import com.example.domain.data.NewsResponse
+import com.example.domain.data.Response
 import com.example.domain.data.UiState
 import com.example.samachar.utils.ColorSystem
 import com.example.samachar.utils.customviews.ErrorState
@@ -34,21 +38,39 @@ import com.example.samachar.utils.customviews.ShimmerBrush
 
 @Composable
 fun NewsLandingViewHolder(
-    uiState: State<UiState>,
-    newsResponse: State<NewsResponse>,
+    newsResponse: State<Response<NewsResponse>?>,
     onNewsCategoryClick: (String) -> Unit
 ) {
-    val news = newsResponse.value
+    var newsList: List<Articles> = listOf()
+    var errorMessage = ""
     val uiStateController = remember { mutableStateOf<UiState>(UiState.Loading) }
 
-    when (uiState.value) {
-        UiState.Loading -> { uiStateController.value = UiState.Loading }
-        UiState.Error -> { uiStateController.value = UiState.Error }
-        else -> { uiStateController.value = UiState.Success }
+    when (newsResponse.value) {
+        is Response.Loading -> {
+            uiStateController.value = UiState.Loading
+        }
+
+        is Response.Error -> {
+            newsResponse.value?.errorMessage?.let { errorMessage = it }
+            uiStateController.value = UiState.Error
+        }
+
+        is Response.Success -> {
+            newsResponse.value?.data?.let {
+                it.articles?.let { articles ->
+                    newsList = articles
+                }
+
+            }
+            uiStateController.value = UiState.Success
+        }
+
+        null -> {}
     }
 
     NewsView(
-        news = news,
+        news = newsList,
+        errorMessage = errorMessage,
         uiStateController = uiStateController.value,
         onNewsCategoryClick = onNewsCategoryClick
     )
@@ -56,7 +78,8 @@ fun NewsLandingViewHolder(
 
 @Composable
 fun NewsView(
-    news: NewsResponse,
+    news: List<Articles>,
+    errorMessage: String,
     uiStateController: UiState,
     onNewsCategoryClick: (String) -> Unit
 ) {
@@ -64,10 +87,27 @@ fun NewsView(
         modifier = Modifier
             .fillMaxSize()
             .background(ColorSystem.grey_900)
+        /*.onKeyEvent { keyEvent ->
+            if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN && keyEvent.nativeKeyEvent.isLongPress) {
+                when (keyEvent.nativeKeyEvent.keyCode) {
+                    KeyEvent.KEYCODE_DPAD_CENTER -> {
+                        println("-----------long press")
+                        true
+                    }
+                    else -> {
+                        false
+                    }
+
+                }
+            } else {
+                true
+            }
+
+        }*/
     ) {
         RedDivider()
         CategoryList(onNewsCategoryClick = onNewsCategoryClick)
-        NewsList(news = news, uiStateController = uiStateController)
+        NewsList(news = news, errorMessage = errorMessage, uiStateController = uiStateController)
     }
 }
 
@@ -84,9 +124,10 @@ fun RedDivider() {
 @Composable
 fun CategoryList(onNewsCategoryClick: (String) -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
-    val selectedTab = remember { mutableStateOf("General") }
     val categoryList =
         listOf("General", "Business", "Entertainment", "Health", "Science", "Sports", "Technology")
+    val selectedIndex = remember { mutableStateOf(0) }
+    val selectedTab = remember { mutableStateOf(categoryList[selectedIndex.value]) }
 
     Column(
         modifier = Modifier
@@ -98,7 +139,7 @@ fun CategoryList(onNewsCategoryClick: (String) -> Unit) {
     ) {
 
         LazyColumn {
-            categoryList.forEach { category ->
+            categoryList.forEachIndexed { index, category ->
                 item {
                     Text(
                         modifier = Modifier
@@ -109,8 +150,57 @@ fun CategoryList(onNewsCategoryClick: (String) -> Unit) {
                                 interactionSource = interactionSource,
                                 indication = null
                             ) {
+                                println("-----------clickable clicked")
+                                selectedIndex.value = index
                                 selectedTab.value = category
                                 onNewsCategoryClick(category)
+                            }
+                            .onKeyEvent { keyEvent ->
+                                if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
+                                    when (keyEvent.nativeKeyEvent.keyCode) {
+                                        KeyEvent.KEYCODE_DPAD_CENTER -> {
+                                            println("-----------long press")
+                                            true
+                                        }
+
+                                        else -> {
+                                            false
+                                        }
+                                    }
+                                }
+
+                                if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
+                                    when (keyEvent.nativeKeyEvent.keyCode) {
+                                        KeyEvent.KEYCODE_DPAD_DOWN -> {
+                                            println("-----------down button clicked")
+                                            if (selectedIndex.value + 1 < categoryList.size) {
+                                                selectedIndex.value += 1
+                                                selectedTab.value =
+                                                    categoryList[selectedIndex.value]
+                                                onNewsCategoryClick(selectedTab.value)
+                                            }
+                                            true
+                                        }
+
+                                        KeyEvent.KEYCODE_DPAD_UP -> {
+                                            println("-----------up button clicked")
+                                            if (selectedIndex.value - 1 >= 0) {
+                                                selectedIndex.value -= 1
+                                                selectedTab.value =
+                                                    categoryList[selectedIndex.value]
+                                                onNewsCategoryClick(selectedTab.value)
+                                            }
+                                            true
+                                        }
+
+                                        else -> {
+                                            false
+                                        }
+
+                                    }
+                                } else {
+                                    true
+                                }
                             },
                         text = category.uppercase(),
                         color = ColorSystem.white,
@@ -124,10 +214,11 @@ fun CategoryList(onNewsCategoryClick: (String) -> Unit) {
 
 @Composable
 fun NewsList(
-    news: NewsResponse,
+    news: List<Articles>,
+    errorMessage: String,
     uiStateController: UiState
 ) {
-    val itemSize: Dp = ((LocalConfiguration.current.screenWidthDp.dp)) / 5
+    val itemSize: Dp = ((LocalConfiguration.current.screenWidthDp.dp)) / 6
 
     when (uiStateController) {
         UiState.Loading -> {
@@ -137,9 +228,11 @@ fun NewsList(
                     .background(ShimmerBrush(targetValue = 1300f, showShimmer = true))
             ) {}
         }
+
         UiState.Error -> {
-            ErrorState()
+            ErrorState(errorMessage)
         }
+
         else -> {
             LazyVerticalGrid(
                 modifier = Modifier
@@ -149,7 +242,7 @@ fun NewsList(
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                news.articles?.forEach { article ->
+                news.forEach { article ->
                     item {
                         NewsCard(article)
                     }

@@ -10,7 +10,9 @@ import androidx.compose.ui.Modifier
 import com.example.samachar.utils.ColorSystem
 
 @Composable
-fun ErrorState() {
+fun ErrorState(
+    errorMessage: String
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -18,7 +20,7 @@ fun ErrorState() {
 
     ) {
         Text(
-            text = "Something went wrong",
+            text = errorMessage,
             color = ColorSystem.white
         )
     }

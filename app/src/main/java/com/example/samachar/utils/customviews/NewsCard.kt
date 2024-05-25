@@ -27,8 +27,8 @@ import com.example.samachar.utils.ColorSystem
 fun NewsCard(
     article: Articles
 ) {
-    val width: Dp = ((LocalConfiguration.current.screenWidthDp.dp)) / 4
-    val height: Dp = ((LocalConfiguration.current.screenHeightDp.dp)) / 3
+    val width: Dp = ((LocalConfiguration.current.screenWidthDp.dp)) / 5
+    val height: Dp = ((LocalConfiguration.current.screenHeightDp.dp)) / 4
 
     Column(
         modifier = Modifier
