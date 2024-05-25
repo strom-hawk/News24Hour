@@ -8,6 +8,6 @@ class NewsApi (
     private val httpClient: HttpClient
 ) {
     suspend fun getNews(category: String): NewsResponse =
-        httpClient.get("https://newsapi.org/v2/top-headlines?country=in&category=$category&apiKey=c5d9487bb44047d380c70d1810160353")
+        httpClient.get("https://newsapi.org/v2/top-headlines?country=in&category=$category&apiKey=1c533168072d49f096cbd1a0fb562cd9")
 
 }

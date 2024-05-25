@@ -14,14 +14,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalConfiguration
@@ -35,6 +39,7 @@ import com.example.samachar.utils.ColorSystem
 import com.example.samachar.utils.customviews.ErrorState
 import com.example.samachar.utils.customviews.NewsCard
 import com.example.samachar.utils.customviews.ShimmerBrush
+import kotlinx.coroutines.launch
 
 @Composable
 fun NewsLandingViewHolder(
@@ -83,31 +88,27 @@ fun NewsView(
     uiStateController: UiState,
     onNewsCategoryClick: (String) -> Unit
 ) {
+    val newsCardFocus = FocusRequester()
+    val categoryFocus = FocusRequester()
+
     Row(
         modifier = Modifier
             .fillMaxSize()
             .background(ColorSystem.grey_900)
-        /*.onKeyEvent { keyEvent ->
-            if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN && keyEvent.nativeKeyEvent.isLongPress) {
-                when (keyEvent.nativeKeyEvent.keyCode) {
-                    KeyEvent.KEYCODE_DPAD_CENTER -> {
-                        println("-----------long press")
-                        true
-                    }
-                    else -> {
-                        false
-                    }
-
-                }
-            } else {
-                true
-            }
-
-        }*/
     ) {
         RedDivider()
-        CategoryList(onNewsCategoryClick = onNewsCategoryClick)
-        NewsList(news = news, errorMessage = errorMessage, uiStateController = uiStateController)
+        CategoryList(
+            focusRequester = newsCardFocus,
+            categoryFocus = categoryFocus,
+            onNewsCategoryClick = onNewsCategoryClick
+        )
+        NewsList(
+            news = news,
+            errorMessage = errorMessage,
+            uiStateController = uiStateController,
+            newsCardFocus = newsCardFocus,
+            categoryFocus = categoryFocus
+        )
     }
 }
 
@@ -122,7 +123,11 @@ fun RedDivider() {
 }
 
 @Composable
-fun CategoryList(onNewsCategoryClick: (String) -> Unit) {
+fun CategoryList(
+    focusRequester: FocusRequester,
+    categoryFocus: FocusRequester,
+    onNewsCategoryClick: (String) -> Unit
+) {
     val interactionSource = remember { MutableInteractionSource() }
     val categoryList =
         listOf("General", "Business", "Entertainment", "Health", "Science", "Sports", "Technology")
@@ -146,11 +151,11 @@ fun CategoryList(onNewsCategoryClick: (String) -> Unit) {
                             .fillMaxWidth()
                             .background(if (selectedTab.value == category) ColorSystem.grey_700 else Color.Transparent)
                             .padding(vertical = 16.dp, horizontal = 10.dp)
+                            .focusRequester(categoryFocus)
                             .clickable(
                                 interactionSource = interactionSource,
                                 indication = null
                             ) {
-                                println("-----------clickable clicked")
                                 selectedIndex.value = index
                                 selectedTab.value = category
                                 onNewsCategoryClick(category)
@@ -172,7 +177,6 @@ fun CategoryList(onNewsCategoryClick: (String) -> Unit) {
                                 if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
                                     when (keyEvent.nativeKeyEvent.keyCode) {
                                         KeyEvent.KEYCODE_DPAD_DOWN -> {
-                                            println("-----------down button clicked")
                                             if (selectedIndex.value + 1 < categoryList.size) {
                                                 selectedIndex.value += 1
                                                 selectedTab.value =
@@ -183,13 +187,17 @@ fun CategoryList(onNewsCategoryClick: (String) -> Unit) {
                                         }
 
                                         KeyEvent.KEYCODE_DPAD_UP -> {
-                                            println("-----------up button clicked")
                                             if (selectedIndex.value - 1 >= 0) {
                                                 selectedIndex.value -= 1
                                                 selectedTab.value =
                                                     categoryList[selectedIndex.value]
                                                 onNewsCategoryClick(selectedTab.value)
                                             }
+                                            true
+                                        }
+
+                                        KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                                            focusRequester.requestFocus()
                                             true
                                         }
 
@@ -216,7 +224,9 @@ fun CategoryList(onNewsCategoryClick: (String) -> Unit) {
 fun NewsList(
     news: List<Articles>,
     errorMessage: String,
-    uiStateController: UiState
+    uiStateController: UiState,
+    newsCardFocus: FocusRequester,
+    categoryFocus: FocusRequester
 ) {
     val itemSize: Dp = ((LocalConfiguration.current.screenWidthDp.dp)) / 6
 
@@ -234,17 +244,44 @@ fun NewsList(
         }
 
         else -> {
+
+            val selectedCardIndex = remember { mutableStateOf(0) }
+            val lazyGridState = rememberLazyGridState()
+            val coroutineScope = rememberCoroutineScope()
+
             LazyVerticalGrid(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
                 columns = GridCells.Adaptive(minSize = itemSize),
+                state = lazyGridState,
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                news.forEach { article ->
+                news.forEachIndexed { index, article ->
                     item {
-                        NewsCard(article)
+                        NewsCard(
+                            selectedCardIndex.value,
+                            index,
+                            article,
+                            newsCardFocus,
+                            categoryFocus
+                        ) { keyEvent, selectedIndex ->
+                            println("---------$selectedIndex")
+                            if (keyEvent == KeyEvent.KEYCODE_DPAD_DOWN && selectedIndex < news.size) {
+                                selectedCardIndex.value = selectedIndex
+                            } else if (keyEvent == KeyEvent.KEYCODE_DPAD_UP && selectedIndex >= 0) {
+                                selectedCardIndex.value = selectedIndex
+                            } else if (keyEvent == KeyEvent.KEYCODE_DPAD_RIGHT && selectedIndex <= news.size) {
+                                selectedCardIndex.value = selectedIndex
+                            } else if (keyEvent == KeyEvent.KEYCODE_DPAD_LEFT && selectedIndex >= 0) {
+                                selectedCardIndex.value = selectedIndex
+                            }
+
+                            coroutineScope.launch {
+                                lazyGridState.animateScrollToItem(selectedCardIndex.value)
+                            }
+                        }
                     }
                 }
             }
