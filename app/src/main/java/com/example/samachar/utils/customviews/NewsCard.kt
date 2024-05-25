@@ -36,7 +36,6 @@ fun NewsCard(
     index: Int,
     article: Articles,
     newsCardFocusRequester: FocusRequester,
-    categoryFocus: FocusRequester,
     newCardDirectionsClicked: (Int, Int) -> Unit
 ) {
     val width: Dp = ((LocalConfiguration.current.screenWidthDp.dp)) / 5
@@ -83,7 +82,6 @@ fun NewsCard(
                                 KeyEvent.KEYCODE_DPAD_LEFT,
                                 selectedCardIndex - 1
                             )
-                            //categoryFocus.requestFocus()
                             true
                         }
 

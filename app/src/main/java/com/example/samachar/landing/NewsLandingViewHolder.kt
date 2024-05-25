@@ -264,22 +264,24 @@ fun NewsList(
                             selectedCardIndex.value,
                             index,
                             article,
-                            newsCardFocus,
-                            categoryFocus
+                            newsCardFocus
                         ) { keyEvent, selectedIndex ->
-                            println("---------$selectedIndex")
-                            if (keyEvent == KeyEvent.KEYCODE_DPAD_DOWN && selectedIndex < news.size) {
-                                selectedCardIndex.value = selectedIndex
-                            } else if (keyEvent == KeyEvent.KEYCODE_DPAD_UP && selectedIndex >= 0) {
-                                selectedCardIndex.value = selectedIndex
-                            } else if (keyEvent == KeyEvent.KEYCODE_DPAD_RIGHT && selectedIndex <= news.size) {
-                                selectedCardIndex.value = selectedIndex
-                            } else if (keyEvent == KeyEvent.KEYCODE_DPAD_LEFT && selectedIndex >= 0) {
-                                selectedCardIndex.value = selectedIndex
-                            }
+                            if(keyEvent == KeyEvent.KEYCODE_DPAD_LEFT && (selectedIndex+1) % 4 == 0) {
+                                categoryFocus.requestFocus()
+                            } else {
+                                if (keyEvent == KeyEvent.KEYCODE_DPAD_DOWN && selectedIndex < news.size) {
+                                    selectedCardIndex.value = selectedIndex
+                                } else if (keyEvent == KeyEvent.KEYCODE_DPAD_UP && selectedIndex >= 0) {
+                                    selectedCardIndex.value = selectedIndex
+                                } else if (keyEvent == KeyEvent.KEYCODE_DPAD_RIGHT && selectedIndex <= news.size) {
+                                    selectedCardIndex.value = selectedIndex
+                                } else if (keyEvent == KeyEvent.KEYCODE_DPAD_LEFT && selectedIndex >= 0) {
+                                    selectedCardIndex.value = selectedIndex
+                                }
 
-                            coroutineScope.launch {
-                                lazyGridState.animateScrollToItem(selectedCardIndex.value)
+                                coroutineScope.launch {
+                                    lazyGridState.animateScrollToItem(selectedCardIndex.value)
+                                }
                             }
                         }
                     }

@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
                 val newsResponse = viewModel.newsResponse.collectAsState()
 
                 NewsLandingViewHolder(newsResponse) { _category ->
-                    //viewModel.getNews(_category)
+                    viewModel.getNews(_category)
                 }
             }
         }
