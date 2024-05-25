@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.example.domain.data.NewsResponse
 import com.example.domain.data.UiState
 import com.example.samachar.utils.ColorSystem
+import com.example.samachar.utils.customviews.ErrorState
 import com.example.samachar.utils.customviews.NewsCard
 import com.example.samachar.utils.customviews.ShimmerBrush
 
@@ -38,26 +39,17 @@ fun NewsLandingViewHolder(
     onNewsCategoryClick: (String) -> Unit
 ) {
     val news = newsResponse.value
-    val showShimmer = remember { mutableStateOf(true) }
+    val uiStateController = remember { mutableStateOf<UiState>(UiState.Loading) }
 
     when (uiState.value) {
-        UiState.Loading -> {
-            showShimmer.value = true
-        }
-
-        UiState.Error -> {
-            println("_________error: ")
-            showShimmer.value = true
-        }
-
-        else -> {
-            showShimmer.value = false
-        }
+        UiState.Loading -> { uiStateController.value = UiState.Loading }
+        UiState.Error -> { uiStateController.value = UiState.Error }
+        else -> { uiStateController.value = UiState.Success }
     }
 
     NewsView(
         news = news,
-        showShimmer = showShimmer.value,
+        uiStateController = uiStateController.value,
         onNewsCategoryClick = onNewsCategoryClick
     )
 }
@@ -65,7 +57,7 @@ fun NewsLandingViewHolder(
 @Composable
 fun NewsView(
     news: NewsResponse,
-    showShimmer: Boolean,
+    uiStateController: UiState,
     onNewsCategoryClick: (String) -> Unit
 ) {
     Row(
@@ -75,7 +67,7 @@ fun NewsView(
     ) {
         RedDivider()
         CategoryList(onNewsCategoryClick = onNewsCategoryClick)
-        NewsList(news = news, showShimmer = showShimmer)
+        NewsList(news = news, uiStateController = uiStateController)
     }
 }
 
@@ -133,28 +125,34 @@ fun CategoryList(onNewsCategoryClick: (String) -> Unit) {
 @Composable
 fun NewsList(
     news: NewsResponse,
-    showShimmer: Boolean,
+    uiStateController: UiState
 ) {
     val itemSize: Dp = ((LocalConfiguration.current.screenWidthDp.dp)) / 5
 
-    if (showShimmer) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(ShimmerBrush(targetValue = 1300f, showShimmer = showShimmer))
-        ) {}
-    } else {
-        LazyVerticalGrid(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
-            columns = GridCells.Adaptive(minSize = itemSize),
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            news.articles?.forEach { article ->
-                item {
-                    NewsCard(article)
+    when (uiStateController) {
+        UiState.Loading -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(ShimmerBrush(targetValue = 1300f, showShimmer = true))
+            ) {}
+        }
+        UiState.Error -> {
+            ErrorState()
+        }
+        else -> {
+            LazyVerticalGrid(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
+                columns = GridCells.Adaptive(minSize = itemSize),
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                news.articles?.forEach { article ->
+                    item {
+                        NewsCard(article)
+                    }
                 }
             }
         }
